@@ -8,19 +8,21 @@ import (
 )
 
 func handleConnection(conn net.Conn) error {
-	var buff []byte
-	_, err := conn.Read(buff)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	pongs := strings.Split(string(buff), "\n")
-
-	for _, _ = range pongs {
-		_, err = conn.Write([]byte("+PONG\r\n"))
+	for {
+		var buff []byte
+		_, err := conn.Read(buff)
 		if err != nil {
 			return err
+		}
+		defer conn.Close()
+
+		pongs := strings.Split(string(buff), "\n")
+
+		for _, _ = range pongs {
+			_, err = conn.Write([]byte("+PONG\r\n"))
+			if err != nil {
+				return err
+			}
 		}
 	}
 
