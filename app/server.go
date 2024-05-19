@@ -8,7 +8,7 @@ import (
 )
 
 func handleConnection(conn net.Conn) error {
-	var buff []byte
+	buff := make([]byte, 1024)
 	_, err := conn.Read(buff)
 	if err != nil {
 		return err
