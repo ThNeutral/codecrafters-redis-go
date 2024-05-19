@@ -38,10 +38,24 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 
-		if val.Type == resp.ARRAY_NAME && val.Array[0].Bulk == cmd.PING_NAME {
-			cmd.Ping(conn)
-		} else if val.Type == resp.ARRAY_NAME && val.Array[0].Bulk == cmd.ECHO_NAME {
-			cmd.Echo(conn, val.Array[1])
+		_type := strings.ToLower(val.Array[0].Bulk)
+		switch _type {
+		case cmd.PING_NAME:
+			{
+				cmd.Ping(conn)
+			}
+		case cmd.ECHO_NAME:
+			{
+				cmd.Echo(conn, val)
+			}
+		case cmd.SET_NAME:
+			{
+				cmd.Set(conn, val)
+			}
+		case cmd.GET_NAME:
+			{
+				cmd.Get(conn, val)
+			}
 		}
 
 	}

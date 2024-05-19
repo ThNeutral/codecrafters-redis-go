@@ -2,10 +2,17 @@ package resp
 
 import "fmt"
 
-type RespWriter struct{}
+type defaultsType struct {
+}
+
+type RespWriter struct {
+	Defaults *defaultsType
+}
 
 func NewWriter() *RespWriter {
-	return &RespWriter{}
+	return &RespWriter{
+		Defaults: &defaultsType{},
+	}
 }
 
 func (rw *RespWriter) Encode(value Value) string {
@@ -13,6 +20,10 @@ func (rw *RespWriter) Encode(value Value) string {
 	case BULK_NAME:
 		{
 			return rw.encodeBulk(value)
+		}
+	case STRING_NAME:
+		{
+			return rw.encodeString(value)
 		}
 	default:
 		{
@@ -23,10 +34,30 @@ func (rw *RespWriter) Encode(value Value) string {
 }
 
 func (rw *RespWriter) encodeBulk(value Value) string {
-	str := "$"
+	str := STRING_NAME
+	str += value.Str
+	str += CRLF
+	return str
+}
+
+func (rw *RespWriter) encodeString(value Value) string {
+	str := BULK_NAME
 	str += fmt.Sprintf("%v", len(value.Bulk))
 	str += CRLF
 	str += value.Bulk
 	str += CRLF
 	return str
+}
+
+func (defaults *defaultsType) OK() string {
+	rw := NewWriter()
+	v := Value{
+		Type: STRING_NAME,
+		Str:  "OK",
+	}
+	return rw.Encode(v)
+}
+
+func (defaults *defaultsType) NULL() string {
+	return "$-1\r\n"
 }
