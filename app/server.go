@@ -63,6 +63,8 @@ func handleConnection(conn net.Conn) {
 
 func main() {
 	fmt.Println("Logs from your program will appear here!")
+	rw := resp.NewWriter()
+	fmt.Println(rw.Defaults.OK())
 
 	l, err := net.Listen("tcp", "0.0.0.0:6379")
 	if err != nil {
