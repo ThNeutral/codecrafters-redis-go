@@ -4,29 +4,21 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strings"
+
+	"github.com/codecrafters-io/redis-starter-go/app/cmd"
 )
 
-func handleConnection(conn net.Conn) error {
-	buff := make([]byte, 1024)
-	_, err := conn.Read(buff)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	pongs := strings.Split(string(buff), "\n")
-
-	fmt.Println(string(buff))
-
-	for _, _ = range pongs {
-		_, err = conn.Write([]byte("+PONG\r\n"))
+func handleConnection(conn net.Conn) {
+	buf := make([]byte, 1024)
+	for {
+		n, err := conn.Read(buf)
 		if err != nil {
-			return err
+			fmt.Println("Error reading:", err)
+			return
 		}
+		fmt.Printf("Received %d bytes: %s\n", n, buf[:n])
+		cmd.Ping(conn)
 	}
-
-	return nil
 }
 
 func main() {
@@ -37,14 +29,13 @@ func main() {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
 	}
-
-	for {
-		conn, err := l.Accept()
-		if err != nil {
-			fmt.Println("Error accepting connection: ", err.Error())
-			os.Exit(1)
-		}
-
-		handleConnection(conn)
+	conn, err := l.Accept()
+	if err != nil {
+		fmt.Println("Error accepting connection: ", err.Error())
+		os.Exit(1)
 	}
+	defer conn.Close()
+	fmt.Printf("Accepted connection from %s\n", conn.RemoteAddr().String())
+
+	handleConnection(conn)
 }
