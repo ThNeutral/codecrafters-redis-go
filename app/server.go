@@ -4,12 +4,27 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn) error {
+	var buff []byte
+	_, err := conn.Read(buff)
+	if err != nil {
+		return err
+	}
 	defer conn.Close()
 
-	conn.Write([]byte("+PONG\r\n"))
+	pongs := strings.Split(string(buff), "\n")
+
+	for _, _ = range pongs {
+		_, err = conn.Write([]byte("+PONG\r\n"))
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func main() {
