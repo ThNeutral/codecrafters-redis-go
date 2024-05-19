@@ -21,7 +21,7 @@ func NewStorage() *Storage {
 func (s *Storage) Set(key string, value string) {
 	s.m[key] = &data{
 		Data:   value,
-		Expiry: time.Unix(1<<63-1, 0),
+		Expiry: time.Unix(1<<61-1, 0),
 	}
 }
 
