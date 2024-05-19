@@ -34,14 +34,14 @@ func (rw *RespWriter) Encode(value Value) string {
 }
 
 func (rw *RespWriter) encodeBulk(value Value) string {
-	str := STRING_NAME
+	str := string(STRING)
 	str += value.Str
 	str += CRLF
 	return str
 }
 
 func (rw *RespWriter) encodeString(value Value) string {
-	str := BULK_NAME
+	str := string(BULK)
 	str += fmt.Sprintf("%v", len(value.Bulk))
 	str += CRLF
 	str += value.Bulk
