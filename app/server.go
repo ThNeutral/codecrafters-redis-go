@@ -8,7 +8,19 @@ import (
 	"github.com/codecrafters-io/redis-starter-go/app/cmd"
 )
 
+func listener(l net.Listener) {
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			fmt.Println("Error accepting connection: ", err.Error())
+		}
+		fmt.Printf("Accepted connection from %s\n", conn.RemoteAddr().String())
+		go handleConnection(conn)
+	}
+}
+
 func handleConnection(conn net.Conn) {
+	defer conn.Close()
 	buf := make([]byte, 1024)
 	for {
 		n, err := conn.Read(buf)
@@ -29,13 +41,6 @@ func main() {
 		fmt.Println("Failed to bind to port 6379")
 		os.Exit(1)
 	}
-	conn, err := l.Accept()
-	if err != nil {
-		fmt.Println("Error accepting connection: ", err.Error())
-		os.Exit(1)
-	}
-	defer conn.Close()
-	fmt.Printf("Accepted connection from %s\n", conn.RemoteAddr().String())
 
-	handleConnection(conn)
+	listener(l)
 }
