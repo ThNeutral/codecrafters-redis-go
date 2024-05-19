@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/codecrafters-io/redis-starter-go/app/cmd"
+	"github.com/codecrafters-io/redis-starter-go/app/resp"
 )
 
 func listener(l net.Listener) {
@@ -29,7 +31,19 @@ func handleConnection(conn net.Conn) {
 			return
 		}
 		fmt.Printf("Received %d bytes: %s\n", n, buf[:n])
-		cmd.Ping(conn)
+
+		val, err := resp.NewReader(strings.NewReader(string(buf[:n]))).Read()
+		if err != nil {
+			fmt.Println("Error parsing:", err)
+			return
+		}
+
+		if val.Bulk == cmd.PING_NAME {
+			cmd.Ping(conn)
+		} else if val.Type == resp.ARRAY_NAME && val.Array[0].Bulk == cmd.ECHO_NAME {
+			cmd.Echo(conn, val)
+		}
+
 	}
 }
 
