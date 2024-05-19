@@ -36,8 +36,8 @@ func Echo(conn net.Conn, val resp.Value) error {
 }
 
 func Set(conn net.Conn, val resp.Value) error {
-	key := val.Array[1].Bulk
-	value := val.Array[2].Bulk
+	key := val.Array[1]
+	value := val.Array[2]
 
 	if len(val.Array) == 5 && strings.ToLower(val.Array[3].Bulk) == EXPIRY_NAME {
 		_int, err := strconv.Atoi(val.Array[4].Bulk)
@@ -54,17 +54,13 @@ func Set(conn net.Conn, val resp.Value) error {
 }
 
 func Get(conn net.Conn, val resp.Value) error {
-	key := val.Array[1].Bulk
-	str := st.Get(key)
-	if str == "" {
+	key := val.Array[1]
+	storeValue := st.Get(key)
+	if storeValue == nil {
 		_, err := conn.Write([]byte(rw.Defaults.NULL()))
 		return err
 	}
-	value := resp.Value{
-		Type: resp.BULK_NAME,
-		Bulk: str,
-	}
-	respString := rw.Encode(value)
+	respString := rw.Encode(*storeValue)
 	_, err := conn.Write([]byte(respString))
 	return err
 }

@@ -78,6 +78,10 @@ func (rr *RespReader) Read() (Value, error) {
 		return rr.readArray()
 	case BULK:
 		return rr.readBulk()
+	case STRING:
+		return rr.readString()
+	case INTEGER:
+		return rr.readIntegerType()
 	default:
 		fmt.Printf("Unknown type: %v", string(_type))
 		return Value{}, nil
@@ -122,6 +126,39 @@ func (rr *RespReader) readBulk() (Value, error) {
 	v.Bulk = string(bulk)
 
 	rr.readLine()
+
+	return v, nil
+}
+
+func (rr *RespReader) readString() (Value, error) {
+	v := Value{}
+	v.Type = STRING_NAME
+
+	line, _, err := rr.readLine()
+	if err != nil {
+		return v, err
+	}
+
+	v.Str = string(line)
+
+	return v, nil
+}
+
+func (rr *RespReader) readIntegerType() (Value, error) {
+	v := Value{}
+	v.Type = INTEGER_NAME
+
+	line, _, err := rr.readLine()
+	if err != nil {
+		return v, err
+	}
+
+	i, err := strconv.Atoi(string(line))
+	if err != nil {
+		return v, err
+	}
+
+	v.Num = i
 
 	return v, nil
 }

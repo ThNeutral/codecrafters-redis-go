@@ -1,9 +1,9 @@
 package resp
 
-import "fmt"
-
-type defaultsType struct {
-}
+import (
+	"fmt"
+	"strconv"
+)
 
 type RespWriter struct {
 	Defaults *defaultsType
@@ -25,9 +25,17 @@ func (rw *RespWriter) Encode(value Value) string {
 		{
 			return rw.encodeString(value)
 		}
+	case INTEGER_NAME:
+		{
+			return rw.encodeInt(value)
+		}
+	case ARRAY_NAME:
+		{
+			return rw.encodeArray(value)
+		}
 	default:
 		{
-			fmt.Printf("Unknown type: %v", string(value.Type))
+			fmt.Printf("Unknown type: %v\n", string(value.Type))
 			return ""
 		}
 	}
@@ -47,6 +55,28 @@ func (rw *RespWriter) encodeString(value Value) string {
 	str += value.Str
 	str += CRLF
 	return str
+}
+
+func (rw *RespWriter) encodeInt(value Value) string {
+	str := string(INTEGER)
+	str += strconv.Itoa(value.Num)
+	str += CRLF
+	return str
+}
+
+func (rw *RespWriter) encodeArray(value Value) string {
+	str := string(ARRAY)
+	l := len(value.Array)
+	str += strconv.Itoa(l)
+	str += CRLF
+	for _, v := range value.Array {
+		str += rw.Encode(v)
+		str += CRLF
+	}
+	return str
+}
+
+type defaultsType struct {
 }
 
 func (defaults *defaultsType) OK() string {
