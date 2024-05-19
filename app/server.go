@@ -41,7 +41,7 @@ func handleConnection(conn net.Conn) {
 		if val.Bulk == cmd.PING_NAME {
 			cmd.Ping(conn)
 		} else if val.Type == resp.ARRAY_NAME && val.Array[0].Bulk == cmd.ECHO_NAME {
-			cmd.Echo(conn, val)
+			cmd.Echo(conn, val.Array[1])
 		}
 
 	}
