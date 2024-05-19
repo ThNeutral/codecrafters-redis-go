@@ -17,7 +17,7 @@ func handleConnection(conn net.Conn) error {
 
 	pongs := strings.Split(string(buff), "\n")
 
-	fmt.Println(buff)
+	fmt.Println(string(buff))
 
 	for _, _ = range pongs {
 		_, err = conn.Write([]byte("+PONG\r\n"))
