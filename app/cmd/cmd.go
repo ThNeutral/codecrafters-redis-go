@@ -29,6 +29,21 @@ func Ping(conn net.Conn) error {
 	return err
 }
 
+func ServerSideError(conn net.Conn) error {
+	_, err := conn.Write([]byte("-Server side error happened. Closing connection\r\n"))
+	return err
+}
+
+func UnknownCommandError(conn net.Conn) error {
+	_, err := conn.Write([]byte("-Unknown command\r\n"))
+	return err
+}
+
+func UnknownError(conn net.Conn) error {
+	_, err := conn.Write([]byte("-Unknown error happened\r\n"))
+	return err
+}
+
 func Echo(conn net.Conn, val resp.Value) error {
 	respString := rw.Encode(val.Array[1])
 	_, err := conn.Write([]byte(respString))

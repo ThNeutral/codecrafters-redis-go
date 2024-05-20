@@ -25,6 +25,7 @@ func handleConnection(conn net.Conn) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("Recovered in handleConnection", r)
+			cmd.ServerSideError(conn)
 		}
 		conn.Close()
 	}()
@@ -33,6 +34,7 @@ func handleConnection(conn net.Conn) {
 		n, err := conn.Read(buf)
 		if err != nil {
 			fmt.Println("Error reading:", err)
+			cmd.UnknownError(conn)
 			return
 		}
 		fmt.Printf("Received %d bytes: %s\n", n, buf[:n])
@@ -40,6 +42,7 @@ func handleConnection(conn net.Conn) {
 		val, err := resp.NewReader(strings.NewReader(string(buf[:n]))).Read()
 		if err != nil {
 			fmt.Println("Error parsing:", err)
+			cmd.UnknownError(conn)
 			return
 		}
 
@@ -60,6 +63,10 @@ func handleConnection(conn net.Conn) {
 		case cmd.GET_NAME:
 			{
 				cmd.Get(conn, val)
+			}
+		default:
+			{
+				cmd.UnknownCommandError(conn)
 			}
 		}
 
