@@ -2,6 +2,7 @@ package resp
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -27,6 +28,7 @@ type Value struct {
 	Type  string
 	Str   string
 	Num   int
+	Error error
 	Bulk  string
 	Array []Value
 }
@@ -82,8 +84,10 @@ func (rr *RespReader) Read() (Value, error) {
 		return rr.readString()
 	case INTEGER:
 		return rr.readIntegerType()
+	case ERROR:
+		return rr.readError()
 	default:
-		fmt.Printf("Unknown type: %v", string(_type))
+		fmt.Printf("Unknown type during parsing: %v\n", string(_type))
 		return Value{}, nil
 	}
 }
@@ -159,6 +163,20 @@ func (rr *RespReader) readIntegerType() (Value, error) {
 	}
 
 	v.Num = i
+
+	return v, nil
+}
+
+func (rr *RespReader) readError() (Value, error) {
+	v := Value{}
+	v.Type = ERROR_NAME
+
+	line, _, err := rr.readLine()
+	if err != nil {
+		return v, err
+	}
+
+	v.Error = errors.New(string(line))
 
 	return v, nil
 }

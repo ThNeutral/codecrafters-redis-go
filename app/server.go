@@ -22,7 +22,12 @@ func listener(l net.Listener) {
 }
 
 func handleConnection(conn net.Conn) {
-	defer conn.Close()
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in handleConnection", r)
+		}
+		conn.Close()
+	}()
 	buf := make([]byte, 1024)
 	for {
 		n, err := conn.Read(buf)

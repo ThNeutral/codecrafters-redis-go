@@ -33,9 +33,13 @@ func (rw *RespWriter) Encode(value Value) string {
 		{
 			return rw.encodeArray(value)
 		}
+	case ERROR_NAME:
+		{
+			return rw.encodeError(value)
+		}
 	default:
 		{
-			fmt.Printf("Unknown type: %v\n", string(value.Type))
+			fmt.Printf("Unknown type during encoding: %v\nFailed value: %v\n", string(value.Type), value)
 			return ""
 		}
 	}
@@ -71,8 +75,14 @@ func (rw *RespWriter) encodeArray(value Value) string {
 	str += CRLF
 	for _, v := range value.Array {
 		str += rw.Encode(v)
-		str += CRLF
 	}
+	return str
+}
+
+func (rw *RespWriter) encodeError(value Value) string {
+	str := string(ERROR)
+	str += value.Error.Error()
+	str += CRLF
 	return str
 }
 
